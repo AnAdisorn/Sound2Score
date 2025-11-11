@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound2Score - Piano Practice Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/vexflow.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sound2Score</h1>
+            <p>Play piano and see your notes on the score in real-time</p>
+        </header>
+
+        <div class="mode-selector">
+            <button id="freePlayBtn" class="mode-btn active">Free Play</button>
+            <button id="practiceBtn" class="mode-btn">Practice Mode</button>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" class="btn-primary">Start Listening</button>
+            <button id="stopBtn" class="btn-secondary" disabled>Stop</button>
+            <div class="status">
+                <span id="statusText">Click "Start Listening" to begin</span>
+            </div>
+        </div>
+
+        <div id="noteDisplay" class="note-display">
+            <h3>Detected Note: <span id="currentNote">-</span></h3>
+            <h4>Frequency: <span id="frequency">-</span> Hz</h4>
+        </div>
+
+        <div id="scoreContainer" class="score-container"></div>
+
+        <div id="practiceMode" class="practice-mode" style="display: none;">
+            <h3>Practice Challenge</h3>
+            <div id="targetChord" class="target-chord"></div>
+            <button id="nextChordBtn" class="btn-primary">Next Chord</button>
+            <div id="feedback" class="feedback"></div>
+        </div>
+    </div>
+
+    <script src="audioProcessor.js"></script>
+    <script src="pitchDetection.js"></script>
+    <script src="scoreRenderer.js"></script>
+    <script src="practiceMode.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
