@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Score Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/vexflow.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        #output { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Simple VexFlow Test</h1>
+    <button onclick="testRender()">Test Render</button>
+    <button onclick="testNote()">Test Single Note</button>
+    <button onclick="testChord()">Test Chord</button>
+    <div id="output"></div>
+    <div id="score"></div>
+
+    <script src="scoreRenderer.js"></script>
+    <script>
+        function log(message, isError = false) {
+            const output = document.getElementById('output');
+            const p = document.createElement('p');
+            p.className = isError ? 'error' : 'success';
+            p.textContent = message;
+            output.appendChild(p);
+        }
+
+        function testRender() {
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('score').innerHTML = '';
+
+            try {
+                log('Creating ScoreRenderer...');
+                const renderer = new ScoreRenderer('score');
+
+                log('Initializing...');
+                renderer.initialize();
+
+                log('✓ Empty staff rendered successfully!', false);
+            } catch (error) {
+                log('✗ Error: ' + error.message, true);
+                console.error(error);
+            }
+        }
+
+        function testNote() {
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('score').innerHTML = '';
+
+            try {
+                log('Creating ScoreRenderer...');
+                const renderer = new ScoreRenderer('score');
+
+                log('Adding note C4...');
+                renderer.addDetectedNote('C', 4);
+
+                log('✓ Note rendered successfully!', false);
+
+                setTimeout(() => {
+                    log('Adding note E4...');
+                    renderer.addDetectedNote('E', 4);
+                }, 1000);
+
+                setTimeout(() => {
+                    log('Adding note G4...');
+                    renderer.addDetectedNote('G', 4);
+                }, 2000);
+            } catch (error) {
+                log('✗ Error: ' + error.message, true);
+                console.error(error);
+            }
+        }
+
+        function testChord() {
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('score').innerHTML = '';
+
+            try {
+                log('Creating ScoreRenderer...');
+                const renderer = new ScoreRenderer('score');
+
+                log('Rendering C Major chord...');
+                const chord = {
+                    name: 'C Major',
+                    notes: [
+                        { name: 'C', octave: 4 },
+                        { name: 'E', octave: 4 },
+                        { name: 'G', octave: 4 }
+                    ]
+                };
+                renderer.renderChord(chord);
+
+                log('✓ Chord rendered successfully!', false);
+            } catch (error) {
+                log('✗ Error: ' + error.message, true);
+                console.error(error);
+            }
+        }
+
+        // Auto-test on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded, VexFlow available: ' + (typeof Vex !== 'undefined'));
+            testRender();
+        });
+    </script>
+</body>
+</html>

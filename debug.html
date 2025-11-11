@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VexFlow Debug</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/vexflow.js"></script>
+</head>
+<body>
+    <h1>VexFlow Debug</h1>
+    <div id="debug-output"></div>
+    <div id="score"></div>
+
+    <script>
+        const output = document.getElementById('debug-output');
+
+        // Check what's available
+        output.innerHTML += '<h2>Available Objects:</h2>';
+        output.innerHTML += '<p>typeof Vex: ' + typeof Vex + '</p>';
+        output.innerHTML += '<p>typeof VexFlow: ' + typeof VexFlow + '</p>';
+        output.innerHTML += '<p>typeof window.Vex: ' + typeof window.Vex + '</p>';
+
+        if (typeof Vex !== 'undefined') {
+            output.innerHTML += '<h3>Vex properties:</h3>';
+            output.innerHTML += '<pre>' + Object.keys(Vex).join('\n') + '</pre>';
+
+            if (Vex.Flow) {
+                output.innerHTML += '<h3>Vex.Flow properties:</h3>';
+                output.innerHTML += '<pre>' + Object.keys(Vex.Flow).slice(0, 20).join('\n') + '</pre>';
+
+                // Try to render something
+                try {
+                    const { Renderer, Stave } = Vex.Flow;
+                    const div = document.getElementById('score');
+
+                    const renderer = new Renderer(div, Renderer.Backends.SVG);
+                    renderer.resize(500, 200);
+                    const context = renderer.getContext();
+
+                    const stave = new Stave(10, 40, 400);
+                    stave.addClef('treble').addTimeSignature('4/4');
+                    stave.setContext(context).draw();
+
+                    output.innerHTML += '<p style="color: green;">✓ Successfully rendered a staff!</p>';
+                } catch (error) {
+                    output.innerHTML += '<p style="color: red;">✗ Error: ' + error.message + '</p>';
+                    output.innerHTML += '<pre>' + error.stack + '</pre>';
+                }
+            }
+        } else {
+            output.innerHTML += '<p style="color: red;">VexFlow not loaded!</p>';
+        }
+    </script>
+</body>
+</html>

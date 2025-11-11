@@ -4,8 +4,8 @@ class Sound2ScoreApp {
         this.audioProcessor = new AudioProcessor();
         this.pitchDetector = new PitchDetector(); // Fallback detector
         this.apiClient = new APIClient(); // Python backend client
-        this.scoreRenderer = new ScoreRenderer('scoreContainer');
-        this.practiceMode = new PracticeMode(this.scoreRenderer, this.pitchDetector);
+        this.scoreRenderer = null;
+        this.practiceMode = null;
 
         this.isListening = false;
         this.animationFrameId = null;
@@ -15,8 +15,38 @@ class Sound2ScoreApp {
         this.lastNoteTime = 0;
         this.usingBackend = false;
 
-        this.initializeUI();
-        this.checkBackendStatus();
+        // Wait for VexFlow to load before initializing
+        this.waitForVexFlow().then(() => {
+            this.scoreRenderer = new ScoreRenderer('scoreContainer');
+            this.practiceMode = new PracticeMode(this.scoreRenderer, this.pitchDetector);
+            this.initializeUI();
+            this.checkBackendStatus();
+        });
+    }
+
+    async waitForVexFlow() {
+        return new Promise((resolve) => {
+            if (typeof Vex !== 'undefined' && typeof Vex.Flow !== 'undefined') {
+                console.log('✓ VexFlow already loaded');
+                resolve();
+            } else {
+                console.log('⏳ Waiting for VexFlow to load...');
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (typeof Vex !== 'undefined' && typeof Vex.Flow !== 'undefined') {
+                        console.log('✓ VexFlow loaded after', attempts * 100, 'ms');
+                        clearInterval(checkInterval);
+                        resolve();
+                    } else if (attempts > 50) { // 5 seconds timeout
+                        console.error('✗ VexFlow failed to load after 5 seconds');
+                        clearInterval(checkInterval);
+                        alert('Failed to load music notation library. Please refresh the page.');
+                        resolve(); // Resolve anyway to prevent hanging
+                    }
+                }, 100);
+            }
+        });
     }
 
     async checkBackendStatus() {
@@ -31,6 +61,11 @@ class Sound2ScoreApp {
     }
 
     initializeUI() {
+        if (!this.scoreRenderer) {
+            console.error('ScoreRenderer not initialized yet');
+            return;
+        }
+
         // Initialize score renderer
         this.scoreRenderer.initialize();
 
@@ -141,6 +176,11 @@ class Sound2ScoreApp {
     }
 
     switchMode(mode) {
+        if (!this.scoreRenderer || !this.practiceMode) {
+            console.warn('Renderers not ready yet');
+            return;
+        }
+
         this.currentMode = mode;
 
         // Update button styles
@@ -170,6 +210,10 @@ class Sound2ScoreApp {
     }
 
     nextChord() {
+        if (!this.practiceMode) {
+            console.warn('Practice mode not ready yet');
+            return;
+        }
         this.practiceMode.reset();
         const chord = this.practiceMode.generateRandomChord();
         this.practiceMode.displayChord(chord);

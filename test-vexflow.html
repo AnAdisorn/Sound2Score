@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VexFlow Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/vexflow.js"></script>
+</head>
+<body>
+    <h1>VexFlow Test</h1>
+    <div id="output"></div>
+    <script>
+        // Test VexFlow loading
+        console.log('VexFlow object:', typeof Vex);
+        console.log('Vex.Flow:', typeof Vex.Flow);
+
+        const output = document.getElementById('output');
+
+        if (typeof Vex !== 'undefined') {
+            output.innerHTML += '<p>✓ VexFlow loaded successfully</p>';
+
+            // Try to create a simple renderer
+            try {
+                const { Renderer, Stave } = Vex.Flow;
+                const div = document.createElement('div');
+                div.id = 'test-score';
+                document.body.appendChild(div);
+
+                const renderer = new Renderer(div, Renderer.Backends.SVG);
+                renderer.resize(500, 200);
+                const context = renderer.getContext();
+
+                const stave = new Stave(10, 40, 400);
+                stave.addClef('treble').addTimeSignature('4/4');
+                stave.setContext(context).draw();
+
+                output.innerHTML += '<p>✓ Staff rendered successfully</p>';
+            } catch (error) {
+                output.innerHTML += '<p>✗ Error rendering: ' + error.message + '</p>';
+                console.error(error);
+            }
+        } else {
+            output.innerHTML += '<p>✗ VexFlow not loaded</p>';
+        }
+    </script>
+</body>
+</html>
