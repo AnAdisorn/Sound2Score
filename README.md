@@ -2,6 +2,8 @@
 
 An interactive web application that detects piano sounds in real-time and displays them as musical notation. Practice your piano skills with instant visual feedback!
 
+**New:** Now powered by Python backend with advanced pitch detection using librosa and numpy for superior accuracy!
+
 ## Features
 
 ### 1. Free Play Mode
@@ -23,14 +25,78 @@ An interactive web application that detects piano sounds in real-time and displa
   - Seventh chords (C7, Am7, Dm7)
   - Diminished chords (Bdim)
 
+## Architecture
+
+Sound2Score uses a **hybrid architecture**:
+- **Python Backend**: Advanced pitch detection using librosa, numpy, and scipy
+- **JavaScript Frontend**: Real-time audio capture and music notation rendering
+- **Automatic Fallback**: Works without backend using JavaScript-only detection
+
+## Installation & Setup
+
+### Quick Start (Recommended)
+
+**macOS/Linux:**
+```bash
+./start.sh
+```
+
+**Windows:**
+```bash
+cd backend
+run.bat
+# Then in another terminal:
+python server.py
+```
+
+This will:
+1. Install Python dependencies in a virtual environment
+2. Start the Flask backend on port 5000
+3. Start the frontend server on port 8000
+4. Open your browser automatically
+
+### Manual Setup
+
+#### 1. Backend Setup (Python)
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
+```
+
+The backend will run on `http://localhost:5000`
+
+#### 2. Frontend Setup
+
+In a new terminal:
+```bash
+python3 server.py
+```
+
+The frontend will run on `http://localhost:8000` and open automatically.
+
+### Frontend-Only Mode
+
+The app works without the Python backend using JavaScript fallback:
+
+```bash
+python3 server.py
+```
+
+The app will detect that the backend is unavailable and use JavaScript-based pitch detection.
+
 ## How to Use
 
 ### Getting Started
 
-1. Open `index.html` in a modern web browser (Chrome, Firefox, Edge, or Safari)
-2. Click "Start Listening" button
-3. Allow microphone access when prompted
-4. Start playing your piano!
+1. Start both backend and frontend servers (or just frontend for fallback mode)
+2. Open your browser to `http://localhost:8000`
+3. Click "Start Listening" button
+4. Allow microphone access when prompted
+5. Start playing your piano!
 
 ### Free Play Mode
 
@@ -54,18 +120,40 @@ An interactive web application that detects piano sounds in real-time and displa
 
 ### Technologies Used
 
+**Backend (Python):**
+- **Flask** - REST API server
+- **librosa** - Advanced audio analysis and pitch detection (PYIN algorithm)
+- **numpy** - Numerical computations
+- **scipy** - Signal processing
+- **Flask-CORS** - Cross-origin resource sharing
+
+**Frontend (JavaScript):**
 - **Web Audio API** - Captures audio from microphone
 - **VexFlow** - Renders musical notation
-- **Custom Pitch Detection** - Autocorrelation algorithm for pitch detection
+- **Custom Pitch Detection** - Autocorrelation algorithm (fallback)
 - **Vanilla JavaScript** - No framework dependencies
 
 ### How It Works
 
-1. **Audio Capture**: Uses Web Audio API to access microphone input
-2. **Signal Processing**: Analyzes time-domain audio data using FFT (Fast Fourier Transform)
-3. **Pitch Detection**: Implements autocorrelation algorithm to identify fundamental frequency
-4. **Note Conversion**: Maps frequency to musical notes using equal temperament tuning (A4 = 440 Hz)
-5. **Visualization**: Renders notes on staff using VexFlow library
+**With Python Backend (Recommended):**
+1. **Audio Capture**: Web Audio API captures microphone input
+2. **Data Transfer**: JavaScript sends audio buffer to Python backend via REST API
+3. **Advanced Processing**: Python uses librosa's PYIN algorithm for superior pitch detection
+4. **Note Conversion**: Frequency mapped to musical notes (A4 = 440 Hz)
+5. **Visualization**: Results sent back to frontend and rendered with VexFlow
+
+**Fallback Mode (No Backend):**
+1. **Audio Capture**: Web Audio API captures microphone input
+2. **JavaScript Processing**: Autocorrelation algorithm in browser
+3. **Note Conversion**: Basic frequency to note mapping
+4. **Visualization**: Rendered with VexFlow
+
+### Why Python Backend?
+
+- **Better Accuracy**: Librosa's PYIN algorithm is more accurate than autocorrelation
+- **Superior Signal Processing**: numpy and scipy provide professional-grade DSP
+- **Confidence Scoring**: Backend provides confidence levels for detected pitches
+- **Future Extensibility**: Easy to add advanced features like chord recognition, rhythm analysis
 
 ### Browser Requirements
 
@@ -77,13 +165,23 @@ An interactive web application that detects piano sounds in real-time and displa
 
 ```
 Sound2Score/
-├── index.html          # Main HTML file
-├── styles.css          # Styling and layout
-├── app.js              # Main application controller
-├── audioProcessor.js   # Web Audio API handling
-├── pitchDetection.js   # Pitch detection algorithm
-├── scoreRenderer.js    # VexFlow integration
-└── practiceMode.js     # Practice mode logic
+├── backend/                    # Python backend
+│   ├── app.py                 # Flask REST API server
+│   ├── pitch_detector.py      # Advanced pitch detection (librosa)
+│   ├── requirements.txt       # Python dependencies
+│   ├── run.sh                 # Backend startup script (Unix)
+│   └── run.bat                # Backend startup script (Windows)
+├── index.html                 # Main HTML file
+├── styles.css                 # Styling and layout
+├── app.js                     # Main application controller
+├── audioProcessor.js          # Web Audio API handling
+├── apiClient.js               # Backend API communication
+├── pitchDetection.js          # Pitch detection (fallback)
+├── scoreRenderer.js           # VexFlow integration
+├── practiceMode.js            # Practice mode logic
+├── server.py                  # Frontend development server
+├── start.sh                   # Quick start script
+└── README.md                  # This file
 ```
 
 ## Tips for Best Results

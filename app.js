@@ -2,7 +2,8 @@
 class Sound2ScoreApp {
     constructor() {
         this.audioProcessor = new AudioProcessor();
-        this.pitchDetector = new PitchDetector();
+        this.pitchDetector = new PitchDetector(); // Fallback detector
+        this.apiClient = new APIClient(); // Python backend client
         this.scoreRenderer = new ScoreRenderer('scoreContainer');
         this.practiceMode = new PracticeMode(this.scoreRenderer, this.pitchDetector);
 
@@ -12,8 +13,21 @@ class Sound2ScoreApp {
         this.lastDetectedNote = null;
         this.noteDebounceTime = 300; // ms
         this.lastNoteTime = 0;
+        this.usingBackend = false;
 
         this.initializeUI();
+        this.checkBackendStatus();
+    }
+
+    async checkBackendStatus() {
+        const status = this.apiClient.getStatus();
+        this.usingBackend = status.online;
+
+        if (status.online) {
+            console.log('🚀 Using Python backend for pitch detection');
+        } else {
+            console.log('📱 Using JavaScript fallback for pitch detection');
+        }
     }
 
     initializeUI() {
@@ -67,14 +81,28 @@ class Sound2ScoreApp {
         document.getElementById('frequency').textContent = '-';
     }
 
-    detectLoop() {
+    async detectLoop() {
         if (!this.isListening) return;
 
         const buffer = this.audioProcessor.getTimeDomainData();
         const sampleRate = this.audioProcessor.getSampleRate();
 
         if (buffer) {
-            const pitchData = this.pitchDetector.detectPitch(buffer, sampleRate);
+            let pitchData = null;
+
+            // Try Python backend first (if available)
+            if (this.apiClient.isOnline) {
+                try {
+                    pitchData = await this.apiClient.detectPitch(buffer, sampleRate);
+                } catch (error) {
+                    console.warn('Backend error, falling back to JS:', error);
+                }
+            }
+
+            // Fallback to JavaScript detection if backend unavailable
+            if (!pitchData) {
+                pitchData = this.pitchDetector.detectPitch(buffer, sampleRate);
+            }
 
             if (pitchData) {
                 this.handleDetectedPitch(pitchData);

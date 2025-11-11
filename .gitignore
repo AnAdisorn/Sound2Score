@@ -23,3 +23,7 @@ __pycache__/
 *.py[cod]
 *.so
 .Python
+venv/
+env/
+ENV/
+*.egg-info/
