@@ -6,12 +6,18 @@ class AudioProcessor {
         this.dataArray = null;
         this.bufferLength = null;
         this.isListening = false;
+
+        // Recording functionality
+        this.mediaRecorder = null;
+        this.audioChunks = [];
+        this.isRecording = false;
+        this.stream = null;
     }
 
     async initialize() {
         try {
             // Request microphone access
-            const stream = await navigator.mediaDevices.getUserMedia({
+            this.stream = await navigator.mediaDevices.getUserMedia({
                 audio: {
                     echoCancellation: false,
                     autoGainControl: false,
@@ -31,7 +37,7 @@ class AudioProcessor {
             this.dataArray = new Float32Array(this.bufferLength);
 
             // Connect microphone to analyser
-            this.microphone = this.audioContext.createMediaStreamSource(stream);
+            this.microphone = this.audioContext.createMediaStreamSource(this.stream);
             this.microphone.connect(this.analyser);
 
             this.isListening = true;
@@ -70,5 +76,89 @@ class AudioProcessor {
             this.audioContext = null;
         }
         this.isListening = false;
+    }
+
+    startRecording() {
+        if (!this.stream) {
+            console.error('No audio stream available. Please initialize first.');
+            return false;
+        }
+
+        if (this.isRecording) {
+            console.warn('Recording already in progress');
+            return false;
+        }
+
+        try {
+            // Reset audio chunks
+            this.audioChunks = [];
+
+            // Create MediaRecorder with the stream
+            const options = { mimeType: 'audio/webm' };
+            this.mediaRecorder = new MediaRecorder(this.stream, options);
+
+            // Handle data available event
+            this.mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    this.audioChunks.push(event.data);
+                }
+            };
+
+            // Handle recording stop event
+            this.mediaRecorder.onstop = () => {
+                console.log('Recording stopped, chunks collected:', this.audioChunks.length);
+            };
+
+            // Start recording
+            this.mediaRecorder.start();
+            this.isRecording = true;
+            console.log('Recording started');
+            return true;
+        } catch (error) {
+            console.error('Error starting recording:', error);
+            return false;
+        }
+    }
+
+    stopRecording() {
+        if (!this.isRecording || !this.mediaRecorder) {
+            console.warn('No recording in progress');
+            return null;
+        }
+
+        return new Promise((resolve) => {
+            this.mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                this.isRecording = false;
+                console.log('Recording stopped, blob size:', audioBlob.size, 'bytes');
+                resolve(audioBlob);
+            };
+
+            this.mediaRecorder.stop();
+        });
+    }
+
+    downloadRecording(audioBlob, filename = 'piano-sample.webm') {
+        if (!audioBlob) {
+            console.error('No audio blob to download');
+            return;
+        }
+
+        // Create a download link
+        const url = URL.createObjectURL(audioBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        console.log('Download initiated:', filename);
     }
 }

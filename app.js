@@ -79,6 +79,10 @@ class Sound2ScoreApp {
 
         // Practice mode buttons
         document.getElementById('nextChordBtn').addEventListener('click', () => this.nextChord());
+
+        // Recording buttons
+        document.getElementById('startRecordBtn').addEventListener('click', () => this.startRecording());
+        document.getElementById('stopRecordBtn').addEventListener('click', () => this.stopRecording());
     }
 
     async start() {
@@ -91,6 +95,7 @@ class Sound2ScoreApp {
             // Update button states
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
+            document.getElementById('startRecordBtn').disabled = false;
 
             // Start detection loop
             this.detectLoop();
@@ -110,6 +115,8 @@ class Sound2ScoreApp {
         // Update button states
         document.getElementById('startBtn').disabled = false;
         document.getElementById('stopBtn').disabled = true;
+        document.getElementById('startRecordBtn').disabled = true;
+        document.getElementById('stopRecordBtn').disabled = true;
 
         // Clear display
         document.getElementById('currentNote').textContent = '-';
@@ -223,6 +230,56 @@ class Sound2ScoreApp {
         const statusText = document.getElementById('statusText');
         statusText.textContent = message;
         statusText.style.color = color;
+    }
+
+    startRecording() {
+        if (!this.isListening) {
+            alert('Please start listening first before recording');
+            return;
+        }
+
+        const success = this.audioProcessor.startRecording();
+
+        if (success) {
+            // Update button states
+            document.getElementById('startRecordBtn').disabled = true;
+            document.getElementById('stopRecordBtn').disabled = false;
+
+            // Update status
+            const statusElement = document.getElementById('recordingStatus');
+            statusElement.textContent = 'Recording...';
+            statusElement.classList.add('active');
+
+            console.log('Recording started');
+        } else {
+            alert('Failed to start recording. Please try again.');
+        }
+    }
+
+    async stopRecording() {
+        const audioBlob = await this.audioProcessor.stopRecording();
+
+        if (audioBlob) {
+            // Update button states
+            document.getElementById('startRecordBtn').disabled = false;
+            document.getElementById('stopRecordBtn').disabled = true;
+
+            // Update status
+            const statusElement = document.getElementById('recordingStatus');
+            statusElement.textContent = '';
+            statusElement.classList.remove('active');
+
+            // Generate filename with timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            const filename = `piano-sample-${timestamp}.webm`;
+
+            // Download the recording
+            this.audioProcessor.downloadRecording(audioBlob, filename);
+
+            console.log('Recording stopped and downloaded:', filename);
+        } else {
+            alert('Failed to stop recording. Please try again.');
+        }
     }
 }
 

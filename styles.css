@@ -115,6 +115,60 @@ button:disabled {
     font-weight: 500;
 }
 
+.recording-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.btn-record, .btn-record-stop {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-record {
+    background: #f44336;
+    color: white;
+}
+
+.btn-record:hover:not(:disabled) {
+    background: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+}
+
+.btn-record-stop {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-record-stop:hover:not(:disabled) {
+    background: #f57c00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+}
+
+.recording-status {
+    padding: 10px 20px;
+    background: #fff3e0;
+    border-radius: 20px;
+    color: #ff9800;
+    font-weight: 500;
+    display: none;
+}
+
+.recording-status.active {
+    display: inline-block;
+}
+
 .note-display {
     text-align: center;
     margin-bottom: 30px;

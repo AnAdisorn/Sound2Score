@@ -1,0 +1,29 @@
+# Audio Processing and Analysis
+numpy>=1.21.0
+scipy>=1.7.0
+librosa>=0.9.0
+soundfile>=0.11.0
+pydub>=0.25.0
+
+# Pitch Detection Libraries
+aubio>=0.4.9
+crepe>=0.0.12
+
+# Visualization
+matplotlib>=3.4.0
+seaborn>=0.11.0
+plotly>=5.0.0
+
+# Data Analysis
+pandas>=1.3.0
+
+# Jupyter Notebook
+jupyter>=1.0.0
+ipython>=7.0.0
+ipykernel>=6.0.0
+
+# Machine Learning (optional, for advanced experiments)
+scikit-learn>=1.0.0
+
+# Audio conversion (for .webm files)
+ffmpeg-python>=0.2.0

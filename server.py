@@ -10,7 +10,7 @@ import socketserver
 import webbrowser
 from pathlib import Path
 
-PORT = 8000
+PORT = 8080
 DIRECTORY = Path(__file__).parent
 
 class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
